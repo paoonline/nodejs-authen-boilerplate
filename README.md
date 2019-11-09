@@ -1,2 +1,2 @@
 # nodejs-authen-boilerplate
-user
+use mongodb, express.js, oauth2
