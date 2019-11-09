@@ -1,2 +1,2 @@
-# nodejs-authen-boilerplate
-use mongodb, express.js, oauth2
+# nodejs-service-express
+use mongodb, express.js
