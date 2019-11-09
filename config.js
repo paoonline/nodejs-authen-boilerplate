@@ -1,3 +1,4 @@
 module.exports = {
-    secret : 'adadaadsda'
+    secret : 'adadaadsda',
+    db: 'mongodb://localhost:auth/auth'
 }
