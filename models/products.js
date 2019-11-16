@@ -6,6 +6,8 @@ const productSchema = new Schema({
     productName: { type: String, required: true, unique: true },
     productModify: { type: Date, required: true },
     productQuantity: { type: Number, required: true },
+    productDescription: { type: String, required: true },
+    imagePath: { type: String, default: '' }
 })
 
 // Create the model class
