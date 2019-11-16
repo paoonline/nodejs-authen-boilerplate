@@ -66,7 +66,7 @@ export default ((app) => {
     })
 
     app.get('/product_search', reqAuth, function (req, res) {
-        Product.findOne({productName:req.body.productName}, { productDescription: 0 }).exec(function (err, result) {
+        Product.findOne({productName:req.query.productName}, { productDescription: 0 }).exec(function (err, result) {
             if (err) { return res.status(422).send({ error: err }) }
             res.json(result)
         })
