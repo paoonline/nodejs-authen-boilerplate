@@ -6,17 +6,21 @@ import {Authen, Product} from './router/'
 import mongoose from 'mongoose';
 import config from './config'
 import cors from 'cors'
+import upload from './function/uploadMiddleware'
+
 const app = express()
 
 // DB setup
 mongoose.connect(config.db, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true, })
 
 // App setup
+
 app.use(express.static(__dirname + '/public'));// you can access image 
 app.use(cors())
 app.use(morgan('combined'))
-app.use(bodyParser.json())
+app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(upload.single('image'))
 
 // Router
 Authen(app)
