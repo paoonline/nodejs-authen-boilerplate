@@ -7,14 +7,14 @@ const reqAuth = passport.authenticate('jwt', { session: false })
 
 // Model for product
 function productHandle(productNames, productQuantitys, productDescriptions, imagePath, _id) {
-    const id = _id ? {_id:_id} : null
+    const id = _id ? { _id: _id } : null
     return (
         new Product({
             id,
             productName: productNames,
             productModify: new Date() * 1,
             productQuantity: productQuantitys,
-            productDescription: 'null',
+            productDescription: productDescriptions,
             imagePath: imagePath ? imagePath : ""
         })
     )
@@ -61,12 +61,12 @@ export default ((app) => {
         const filename = await fileUpload.save(req.file.buffer);
         Product.findByIdAndUpdate(req.body._id, { '$set': { imagePath: filename } }, { upsert: true }, function (err) {
             if (err) { return res.status(422).send({ error: err }) }
-            res.status(200).json({ status: true});
+            res.status(200).json({ status: true });
         })
     })
 
     app.get('/product_search', reqAuth, function (req, res) {
-        Product.findOne({ productName: req.query.productName }, { productDescription: 0 }).exec(function (err, result) {
+        Product.find({ $text: { $search: req.query.productName } }, { productDescription: 0 }).exec(function (err, result) {
             if (err) { return res.status(422).send({ error: err }) }
             res.json(result)
         })

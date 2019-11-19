@@ -32,6 +32,7 @@
     "nodemon": "^1.19.4"
   },
   "scripts": {
+    "start": "babel-node index.js --exec --presets babel-preset-env",
     "dev": "nodemon index.js --exec babel-node --presets babel-preset-env",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
