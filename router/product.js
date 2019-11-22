@@ -6,7 +6,7 @@ import path from 'path';
 const reqAuth = passport.authenticate('jwt', { session: false })
 
 // Model for product
-function productHandle(productNames, productQuantitys, productDescriptions, imagePath, _id) {
+function productHandle(productNames, productQuantitys, productDescriptions, imagePath, _id, edit) {
     const id = _id ? { _id: _id } : null
     return (
         new Product({
@@ -16,7 +16,11 @@ function productHandle(productNames, productQuantitys, productDescriptions, imag
             productQuantity: productQuantitys,
             productDescription: productDescriptions,
             imagePath: imagePath ? imagePath : ""
-        })
+        }, {
+            _id: edit ? false : true,
+            id: edit ? false : true
+        }
+        )
     )
 }
 
@@ -24,6 +28,13 @@ export default ((app) => {
     //CRUD
     app.get('/product_list', reqAuth, function (req, res) {
         Product.find({}, { productDescription: 0 }).sort({ productModify: -1 }).exec(function (err, result) {
+            if (err) { return res.status(422).send({ error: err }) }
+            res.json(result)
+        })
+    })
+
+    app.get('/product_editone', reqAuth, function (req, res) {
+        Product.findOne({ _id: req.query._id }).exec(function (err, result) {
             if (err) { return res.status(422).send({ error: err }) }
             res.json(result)
         })
@@ -39,9 +50,9 @@ export default ((app) => {
 
     app.post('/product_update', reqAuth, function (req, res) {
         const { productNames, productQuantitys, productDescriptions, imagePath, _id } = req.body
-        Product.findByIdAndUpdate(_id, productHandle(productNames, productQuantitys, productDescriptions, imagePath, _id), { upsert: true }, function (err) {
+        Product.findByIdAndUpdate(_id, { $set: productHandle(productNames, productQuantitys, productDescriptions, imagePath, null, true) }, { upsert: true }, function (err,result) {
             if (err) { return res.status(422).send({ error: err }) }
-            res.send({ status: true })
+            res.send({ _id: result.id, status: true })
         })
     })
 
@@ -65,8 +76,8 @@ export default ((app) => {
         })
     })
 
-    app.get('/product_search', reqAuth, function (req, res) {
-        Product.find({ $text: { $search: req.query.productName } }, { productDescription: 0 }).exec(function (err, result) {
+    app.get('/product_search', reqAuth, function (req, res) { /. *ta.* /
+        Product.find({ productName: {$regex : `^${req.query.productName}.*` , $options: 'si' } }, { productDescription: 0 }).exec(function (err, result) {
             if (err) { return res.status(422).send({ error: err }) }
             res.json(result)
         })

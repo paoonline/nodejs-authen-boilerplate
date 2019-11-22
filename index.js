@@ -2,7 +2,7 @@ import express from 'express';
 import http from 'http';
 import bodyParser from 'body-parser';
 import morgan from 'morgan';
-import {Authen, Product} from './router/'
+import { Authen, Product } from './router/'
 import mongoose from 'mongoose';
 import config from './config'
 import cors from 'cors'
@@ -11,7 +11,7 @@ import upload from './function/uploadMiddleware'
 const app = express()
 
 // DB setup
-mongoose.connect(config.db, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true, })
+mongoose.connect(config.db, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true, useFindAndModify: false })
 
 // App setup
 
