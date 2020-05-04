@@ -1,8 +1,10 @@
-import passportService from '../service/passport'
 import passport from 'passport'
 import Product from '../models/products';
+import 'firebase/storage'
+import admin from 'firebase-admin'
+import config from '../config'
 import Resize from '../function/Resize'
-import path from 'path';
+
 const reqAuth = passport.authenticate('jwt', { session: false })
 
 // Model for product
@@ -64,13 +66,38 @@ export default ((app) => {
     })
 
     app.post('/image_upload', reqAuth, async function (req, res) {
-        const imagePath = path.join(__dirname, '../public/images');
-        const fileUpload = new Resize(imagePath)
+        let file = req.file
         if (!req.file) {
             res.status(401).json({ error: 'Please provide an image' });
         }
-        const filename = await fileUpload.save(req.file.buffer);
-        Product.findByIdAndUpdate(req.body._id, { '$set': { imagePath: filename } }, { upsert: true }, function (err) {
+        file = new Resize(req.file);
+        const bucket = admin.storage().bucket();
+        const name = req.body._id + '_' + file.folder.originalname;
+        let bucketFile = bucket.file(name)
+
+        if (!file) {
+            res.status(401).json({ error: 'Please provide an image' });
+        }
+
+        bucketFile = await bucketFile 
+            .save(Buffer.from(file.folder.buffer), {
+                metadata: { contentType: 'image/jpeg' }}
+            ) 
+            .then((val) => 
+                ({
+                    status: 'success',
+                    data: Object.assign({}, bucketFile.metadata, {
+                    downloadURL: `https://storage.googleapis.com/${bucket.name}/${name}`,
+                    })
+                })
+            )
+            .catch(err => {
+                res.status(500).json({
+                status: 'error',
+                errors: err,
+                });
+            });
+        Product.findByIdAndUpdate(req.body._id, { '$set': { imagePath: config.firebaseConfig.urlPath + bucketFile.data.name + '?alt=media'} }, { upsert: true }, function (err) {
             if (err) { return res.status(422).send({ error: err }) }
             res.status(200).json({ status: true });
         })
