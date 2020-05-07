@@ -24,7 +24,7 @@ const userCompanySchema = new Schema({
     companyName: {type: String, required: true, minlength: 1 , maxlength: 20},
     companyAddress: {type: String, required: true, minlength: 1 , maxlength: 100},
     isActive: {type: Boolean , default: false},
-    date: {type : Date, default: Date.now }
+    createdAt: {type : Date, default: new Date() }
 })
 
 // On save hook, encrypt password
