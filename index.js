@@ -31,7 +31,6 @@ app.use(upload.single('imagePath'))
 
 // Router
 Authen(app)
-Product(app)
 
 // Server setup
 const port = process.env.PORT || 3090;
