@@ -21,7 +21,7 @@ export const authenEmail = (req, res, next) => {
     let decodedToken = jwtDecode(req.query.token);
     let dateCurrent = new Date() * 1
     if (Math.abs(decodedToken.iat - dateCurrent) < 3600000) {
-        UserCompany.findByIdAndUpdate(decodedToken.sub, { $set :{isActive: true, createdAt: new Date() }}, { upsert:true }, (err, result) => {
+        UserCompany.findByIdAndUpdate(decodedToken.sub, { $set :{isActive: true},$unset: {lastModifiedDate: 1 }}, { upsert:true }, (err, result) => {
             if (err) { return res.status(422).send({ error: err }) }
             res.send(`
             <html>
@@ -74,8 +74,6 @@ export const signup = (req, res, next) => {
             pass: `${process.env.PASSWORD}` // generated ethereal password
           }
         });
-        // localhost:3090/authenEmail?token=${tokenForUser(userCompany)}
-      
         let mailOptions = {
             from: `${process.env.EMAIL}`,
             to: email,
@@ -100,7 +98,7 @@ export const signup = (req, res, next) => {
         userCompany.save(function (err) {
             if (err) { return next(err) }
             // Reopen to req indicating the user war created
-            res.json({ register: true })
+            res.json({ register: `http://localhost:3090/authenEmail?token=${tokenForUser(userCompany)}` })
         })
     })
 }
